@@ -18,7 +18,7 @@ if ($_POST) {
     if (file_put_contents($file_name_json,$_POST['msg-json'])===false) {
       echo '<div class="error">На сервере не удалось сохранить Файл JSON</div>';
     } else {
-      echo '<div><a href="'.$file_name_json.'" target="balnk">'.$file_name_json.'</a></div>';
+      echo '<div><a href="'.$file_name_json.'" target="blank">'.$file_name_json.'</a></div>';
     }
 
    # Директория с установленными ключами
@@ -28,13 +28,13 @@ if ($_POST) {
    # Возможно, это www-data
 
    $gpg = new gnupg();
-   if ( !isset($gpg)) {
-      echo '<div class="error">На сервере не настроен PHP GnuPG<br>ERROR:'.error_get_last()['message'].'</div>';
-      exit();
-   }
+   #if ( !isset($gpg)) {
+   #      echo '<div class="error">На сервере не настроен PHP GnuPG</div>';
+   #      exit();
+   #}
    # Получить сведения о ключе (для отладки)
-   $info = $gpg -> keyinfo('CF8DBB34');
-   echo '<pre>'.htmlspecialchars(print_r($_POST, true)).'</pre>';
+   #$info = $gpg -> keyinfo('CF8DBB34');
+   #echo '<pre>'.htmlspecialchars(print_r($info, true)).'</pre>';
 
    
    # В зависимости от выбора действия (Защифровать/Посписать)
@@ -48,7 +48,7 @@ if ($_POST) {
        break;
      case "act_enc":
        # Шифруем публичныйм ключем получателя
-       $gpg -> addencryptkey("CF8DBB34"); 
+       $gpg -> addencryptkey("96CF7FFA"); 
        $res_asc = $gpg -> encrypt($_POST['msg-json']);
        echo '<div class="label">Результат: зашифровано PGP</div>';
        echo '<textarea rows="10" cols="50">'.$res_asc.'</textarea>';
@@ -64,25 +64,32 @@ if ($_POST) {
 
   if (isset($_POST['email'])) {
     # Указали почту будем отправлять данные
+    $to = $_POST['email'];
     $subject='Оформлен новый заказ ';
-    $headers_mail = array(
-      'From' => 'webmaster@oriontronix.ru',
-      'X-Mailer' => 'PHP/'.phpversion()
-    );
-   
-    $success = mail($_POST['email'],$subject,$res_asc,$headers_mail);
-    if ( !success ) {
-      echo '<div class="error">Не удалось отправить письмо на '.$_POST['email'].'<br>ERROR:'.error_get_last()['message'].'</div>';
+# не работает в PHP 5.3
+#    $headers_mail = array(
+#      'From' => 'webmaster@oriontronix.ru',
+#      'X-Mailer' => 'PHP/'.phpversion(),
+#      'Return-Path' => 'webmaster@oriontronix.ru'
+#    );
+    $headers_mail = 'From: webmaster@oriontronix.ru'."\r\n".
+       'X-Mailer: PHP/' . phpversion()."\r\n".
+       'Return-Path: webmaster@oriontronix.ru'."\r\n".
+       'Content-type: text/plain; charset=utf-8';
+
+    $success = mail($to,$subject,$res_asc,$headers_mail);
+    if ( !$success ) {
+      echo '<div class="error">Не удалось отправить письмо на '.$to.'</div>';
     } else {
-      echo '<div>Письмо успешно отправлено на '.$_POST['email'].'</div>';
+      echo '<div>Письмо успешно отправлено на '.$to.'</div>';
     }
   }   
   
-  echo "<hr>";  
-  
+  echo '<hr>';  
+  echo '<a href="/">В начало</a>';
   }
 
-}
+} else {
 ?>
 
 <form action="" method="post">
@@ -139,3 +146,4 @@ if ($_POST) {
     <input type="submit" value="Пуск" />
 </form>
 
+<?php } ?>
