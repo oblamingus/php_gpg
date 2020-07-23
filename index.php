@@ -27,13 +27,10 @@ if ($_POST) {
    # Ваделец - пользователь от чьего имени работает web сервер. 
    # Возможно, это www-data
 
-   $gpg = new gnupg();
-   #if ( !isset($gpg)) {
-   #      echo '<div class="error">На сервере не настроен PHP GnuPG</div>';
-   #      exit();
-   #}
+   $gpg = new gnupg() or exit("GnuPG library not found");
+
    # Получить сведения о ключе (для отладки)
-   #$info = $gpg -> keyinfo('CF8DBB34');
+   #$info = $gpg -> keyinfo('CF8DBB34') or exit($gpg->geterror());
    #echo '<pre>'.htmlspecialchars(print_r($info, true)).'</pre>';
 
    
@@ -41,15 +38,15 @@ if ($_POST) {
   switch ($_POST['act']) {
      case "act_sign":
        # Подписываем своим приватным ключем (ID_KEY,PASSWORD)
-       $gpg -> addsignkey("96CF7FFA","12345");
-       $res_asc = $gpg->sign($_POST['msg-json']);
+       $gpg -> addsignkey("96CF7FFA","12345") or exit($gpg->geterror());
+       $res_asc = $gpg->sign($_POST['msg-json']) or exit($gpg->geterror());
        echo '<div class="label">Результат: подписано PGP</div>';
        echo '<textarea rows="10" cols="50">'.$res_asc.'</textarea>';
        break;
      case "act_enc":
        # Шифруем публичныйм ключем получателя
-       $gpg -> addencryptkey("96CF7FFA"); 
-       $res_asc = $gpg -> encrypt($_POST['msg-json']);
+       $gpg -> addencryptkey("96CF7FFA") or exit($gpg->geterror()); 
+       $res_asc = $gpg -> encrypt($_POST['msg-json']) or exit($gpg->geterror());
        echo '<div class="label">Результат: зашифровано PGP</div>';
        echo '<textarea rows="10" cols="50">'.$res_asc.'</textarea>';
        break;
