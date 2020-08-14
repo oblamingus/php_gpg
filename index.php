@@ -30,7 +30,7 @@ if ($_POST) {
    $gpg = new gnupg() or exit("GnuPG library not found");
 
    # Получить сведения о ключе (для отладки)
-   #$info = $gpg -> keyinfo('CF8DBB34') or exit($gpg->geterror());
+   #$info = $gpg -> keyinfo('7301CFF4') or exit($gpg->geterror());
    #echo '<pre>'.htmlspecialchars(print_r($info, true)).'</pre>';
 
    
@@ -38,14 +38,14 @@ if ($_POST) {
   switch ($_POST['act']) {
      case "act_sign":
        # Подписываем своим приватным ключем (ID_KEY,PASSWORD)
-       $gpg -> addsignkey("96CF7FFA","12345") or exit($gpg->geterror());
+       $gpg -> addsignkey("7301CFF4","thinktwice") or exit($gpg->geterror());
        $res_asc = $gpg->sign($_POST['msg-json']) or exit($gpg->geterror());
        echo '<div class="label">Результат: подписано PGP</div>';
        echo '<textarea rows="10" cols="50">'.$res_asc.'</textarea>';
        break;
      case "act_enc":
        # Шифруем публичныйм ключем получателя
-       $gpg -> addencryptkey("96CF7FFA") or exit($gpg->geterror()); 
+       $gpg -> addencryptkey("7301CFF4") or exit($gpg->geterror()); 
        $res_asc = $gpg -> encrypt($_POST['msg-json']) or exit($gpg->geterror());
        echo '<div class="label">Результат: зашифровано PGP</div>';
        echo '<textarea rows="10" cols="50">'.$res_asc.'</textarea>';
@@ -69,9 +69,9 @@ if ($_POST) {
 #      'X-Mailer' => 'PHP/'.phpversion(),
 #      'Return-Path' => 'webmaster@oriontronix.ru'
 #    );
-    $headers_mail = 'From: webmaster@oriontronix.ru'."\r\n".
+    $headers_mail = 'From: order-script@www.oriontronix.ru'."\r\n".
        'X-Mailer: PHP/' . phpversion()."\r\n".
-       'Return-Path: webmaster@oriontronix.ru'."\r\n".
+       'Return-Path: order-script@www.oriontronix.ru'."\r\n".
        'Content-type: text/plain; charset=utf-8';
 
     $success = mail($to,$subject,$res_asc,$headers_mail);
@@ -96,49 +96,29 @@ if ($_POST) {
         <option selected value="act_sign">Подписать (нужен приватный ключ и пароль)</option>
     </select>
     <div class="label">Сообщение</div>
-    <textarea  name="msg-json" rows="10" cols="50">
+    <textarea  name="msg-json" rows="28" cols="100">
 {
-  "id":"123",
-  "your-name":"Иванов Иван Иванович", 
-  "your-email":"ivanov@mail.ru",
-  "text-inn":"7800000000",
-  "menu-type-query":"Запрос на просчет",
-  "end-customer":"Автоматика Сервис",
-  "project-description":"Стенд проверки", 
-  "item-order":[
-    {
-      "id":"123.001",
-      "part-number":"1656725",
-      "text-mfg": "VS-08-RJ45-5-Q/IP20",
-      "number-cols":10,
-      "number-eau":10000
-    },
-    {
-      "id": "123.002",
-      "part-number": "0567590001",
-      "text-mfg": "TMS-SCE-3/4-2.0-9",
-      "number-cols":2,
-      "number-eau":150
-    },
-    {
-      "id":"123.003",
-      "part-number":"1SX1-T",
-      "text-mfg":"78454956790",
-      "number-cols":7,
-      "number-eau":10
-    },
-    {
-      "id": "123.004",
-      "part-number": "DTM04-12PA",
-      "text-mfg": "DTM04-12PA",
-      "number-cols":1,
-      "number-eau":100
-    }
-  ]
+       "Id": "d7a9ed859e90682e724e77a3546910a4",
+       "Type": "Bid",
+         "Project": "ff",
+         "Customer": "dd",
+         "Address": "ООО \"Ромашка\"; Цветочная 1; Земледельческий район; 190000Zip; Колхозград; Область; Россия; ФИО; Телефон; 123456789ИНН",
+         "Comment": "В свободной форме",
+         "Note": "test@test.ru",
+         "Items": [
+                   {
+                             "Id": "d7a9ed859e90682e724e77a3546910a4_0",
+                             "ItmBrand": "dfgsdfsdf",
+                             "ItmPartname": "2/22 2-B",
+                             "ItmDescription": "",
+                             "ItmQty": "1",
+                             "ItmEAUQty": "1"
+                   }
+         ]
 }
     </textarea>
     <div class="label">Послать результат на e-mail:</div>
-    <input type="text" name="email" />
+    <input type="text" name="email" value="order-request@oriontronix.ru" size=40 />
     <br />
     <input type="submit" value="Пуск" />
 </form>
